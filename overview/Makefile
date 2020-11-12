@@ -6,11 +6,12 @@ LATEXFLAGS+=	-shell-escape
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 
-FIGS+= 		xkcd-341.png
-FIGS+= 		skatteverket-hack.png
-FIGS+=		behaviour-profiles.pdf
 FIGS+=		network-rotated.pdf
+FIGS+=		network-dmz-rotated.pdf
 FIGS+=		network-layers.pdf
+FIGS+=		network-layers-packet.pdf
+FIGS+=		network-layers-fw.pdf
+FIGS+=		network-layers-dpi.pdf
 
 
 notes.pdf: notes.tex

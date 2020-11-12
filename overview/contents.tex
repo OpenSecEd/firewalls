@@ -85,25 +85,247 @@
 
 \begin{frame}
   \begin{figure}
-    \includegraphics[width=\columnwidth]{figs/network-layers.pdf}
+    \includegraphics[width=\columnwidth]{figs/network-layers-fw.pdf}
     \caption{Communication between Bob and a server.}
   \end{figure}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{definition}[Packet filter]
+    \begin{itemize}
+      \item \emph{Stateless} filtering based on transport layer data.
+    \end{itemize}
+  \end{definition}
 
-\section{Circuit-level gateways}
-
-
-\section{Application firewalls}
-
-
-\section{Summary}
+  \begin{minted}{json}
+    {
+      "src addr": "Bob",
+      "dst addr": "server",
+      "payload": {
+        "src port": "random",
+        "dst port": "https",
+        "payload": "unintelligible blob"
+      }
+    }
+  \end{minted}
+\end{frame}
 
 \begin{frame}
-  \begin{block}{Summary}
+  \begin{definition}[Ingress, egress filtering]
+    \begin{description}
+      \item[Ingress] inbound traffic.
+      \item[Egress] outbound traffic.
+    \end{description}
+  \end{definition}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ingress filtering]
+  \begin{minted}{json}
+    {
+      "src addr": "not internal",
+      "dst addr": "Bob",
+      "payload": {
+        "src port": "random",
+        "dst port": "https",
+        "payload": "unintelligible blob"
+      }
+    }
+  \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Egress filtering]
+  \begin{minted}{json}
+    {
+      "src addr": "Bob",
+      "dst addr": "server",
+      "payload": {
+        "src port": "random",
+        "dst port": "http",
+        "payload": "unintelligible blob"
+      }
+    }
+  \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}
     \begin{itemize}
-      \item \dots
+      \item A blunt tool.
+      \item Discard or forward a packet.
+      \item Vulnerable to TCP/IP bugs.
     \end{itemize}
+  \end{remark}
+\end{frame}
+
+
+\section[SPI]{Circuit-level gateways}
+
+\begin{frame}[fragile]
+  \begin{definition}[Stateful firewall/circuit-level gateway]
+    \begin{itemize}
+      \item Stateful filtering based on transport layer data.
+    \end{itemize}
+  \end{definition}
+
+  \begin{columns}[T]
+    \begin{column}{0.35\columnwidth}
+      \begin{minted}{json}
+    {
+      "src addr": "Bob",
+      "dst addr": "server",
+      "payload": {
+        "flag": "SYN",
+        "seq num": 0,
+        "src port": "random",
+        "dst port": "https",
+        "payload": "blob"
+      }
+    }
+      \end{minted}
+    \end{column}
+    \begin{column}{0.55\columnwidth}
+      \begin{tabular}{llll}
+        \textbf{src} & \textbf{dst} & \textbf{state} & \textbf{sn} \\
+        \midrule
+        Bob:random & server:https & SYN & 0
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{columns}[T]
+    \begin{column}{0.35\columnwidth}
+      \begin{minted}{json}
+    {
+      "src addr": "server",
+      "dst addr": "Bob",
+      "payload": {
+        "flag": "ACK",
+        "seq num": 1,
+        "src port": "https",
+        "dst port": "random",
+        "payload": "blob"
+      }
+    }
+      \end{minted}
+    \end{column}
+    \begin{column}{0.55\columnwidth}
+      \begin{tabular}{llll}
+        \textbf{src} & \textbf{dst} & \textbf{state} & \textbf{sn} \\
+        \midrule
+        Bob:random & server:https
+                   & \only<1>{SYN}\only<2>{\color{blue}ACK}
+                   & \only<1>{0}\only<2>{\color{blue}1}
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}
+    \begin{itemize}
+      \item Keeps track of TCP connections.
+      \item Avoids TCP/IP bugs.
+    \end{itemize}
+  \end{remark}
+\end{frame}
+
+
+\section[DPI]{Application firewalls}
+
+\begin{frame}
+  \begin{figure}
+    \includegraphics[width=\columnwidth]{figs/network-layers-dpi.pdf}
+    \caption{Communication between Bob and a server.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{definition}[Application firewalls/Deep packet inspection]
+    \begin{itemize}
+      \item Stateful filtering based on data from \emph{all layers}.
+    \end{itemize}
+  \end{definition}
+  \begin{minted}{json}
+    {
+      "src addr": "server",
+      "dst addr": "Bob",
+      "payload": {
+        "flag": "ACK",
+        "seq num": 4,
+        "src port": "http",
+        "dst port": "random",
+        "payload": {
+          "data": "...<h1>Down with government!</h1>..."
+        }
+      }
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}
+    \begin{itemize}
+      \item Can detect banned content.
+      \item Can detect forbidden protocols on non-standard ports.
+      \item Can even detect certain buffer-overflow attacks.
+      \item Essentially a combination of stateful firewall and network-based 
+        intrusion detection system.
+    \end{itemize}
+  \end{remark}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[The Great Firewall of China]
+    \begin{itemize}
+      \item Many countries engaging in censorship use DPI.
+      \item See 
+        \citetitle{MeasuringCircumventingInternetCensorship}\footfullcite{MeasuringCircumventingInternetCensorship} 
+        for an adversarial treatment of DPI.
+    \end{itemize}
+  \end{example}
+\end{frame}
+
+
+\section{Placement}
+
+\begin{frame}
+  \centering
+  \only<1>{
+    \includegraphics[height=0.70\textheight]{figs/network-rotated.pdf}
+  }
+  \only<2>{
+    \includegraphics[height=0.70\textheight]{figs/network-dmz-rotated.pdf}
+  }
+
+  \begin{question}
+    \begin{itemize}
+      \item Where to place the firewall?
+    \end{itemize}
+  \end{question}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Types}
+    \begin{description}
+      \item[Bastion host] Stronghold in network.
+        \begin{itemize}
+          \item Minimize attack surface.
+        \end{itemize}
+
+      \item[Host based] Firewalls on servers, secure individual host.
+        \begin{itemize}
+          \item Tailored filter to host needs.
+          \item Protects from internal attacks.
+        \end{itemize}
+
+      \item[Personal] Firewall on workstations, much less complex.
+    \end{description}
   \end{block}
 \end{frame}
 
