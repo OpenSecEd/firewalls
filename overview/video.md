@@ -2,7 +2,7 @@
 
 [On FeedbackFruits][ff]
 
-[img]: https://img.youtube.com/vi/YPubw43IXhQ/hqdefault.jpg
-[video]: https://youtu.be/YPubw43IXhQ
-[ff]: https://eu.feedbackfruits.com/groups/activity-group/017335a5-2bc8-4d1d-9629-89d9fc7b815c
+[img]: https://img.youtube.com/vi/x5UDEXysbEU/hqdefault.jpg
+[video]: https://youtu.be/x5UDEXysbEU
+[ff]: https://eu.feedbackfruits.com/groups/activity-group/411a3ab2-6b54-483a-8e27-cecb60bd4088
 
